@@ -10,31 +10,27 @@ library(tidyverse)
 library(shinyBS)
 library(shinyjs)
 library(bslib)
+library(glue)
+library(shinycssloaders)
+
 
 #load data
-countriesRelevance <- readRDS("data/countriesRelevance.RDS")
-topRelevantAuthors <- readRDS("data/topRelevantAuthors.RDS")
+countriesRelevance = readRDS("data/countriesRelevance.RDS")
+topRelevantAuthors = readRDS("data/topRelevantAuthors.RDS")
 data = readRDS("data/Words3_Authors.rds")
 papers = readRDS("data/papersScoredT.rds")
 relevantWords = readRDS("data/relevantWords.rds")
 
-
-countryColors <-
-  setNames(terrain.colors(n=27), levels(data$Countries))
-
 #crear paleta de color
-ncolors <- 5
-my_palette <- grDevices::colorRampPalette(rev(c("white","lightblue","blue","darkblue", 
-                                                "black")))(ncolors)
+my_palette <- grDevices::colorRampPalette(rev(c("#162F43","#3B4952","#55636D","#6D7E8B", 
+                                                "#8192A0")))(11)
+my_paletteL <- grDevices::colorRampPalette(rev(c("#162F43","#3B4952","#55636D","#6D7E8B", 
+                                                 "#8192A0")))(5)
 
-noNAScores <- countriesRelevance %>% 
-  filter(!is.na(totalScore))
+# noNAScores <- countriesRelevance %>% 
+#   filter(!is.na(percen))
 
-myColors <- tibble(score=quantile(noNAScores$totalScore, prob=c(0,.25,.5,.75,1), type=1), 
-                   color=my_palette[cut(quantile(noNAScores$totalScore, prob=c(0,.25,.5,.75,1), type=1),
-                                        ncolors)])
-
-ui <- fluidPage(
+ui <- navbarPage(collapsible = TRUE,
   
   useShinyjs(),
   
@@ -52,16 +48,6 @@ ui <- fluidPage(
   #more adjustments
   tags$head(
     tags$style(HTML("
-                    .well {
-                    min-height: 20px;
-                    padding: 19px;
-                    margin-bottom: 20px;
-                    background-color: transparent;
-                      border: 0px solid transparent;
-                    border-radius: 0px;
-                    -webkit-box-shadow: inset 0 0px 0px rgb(0 0 0 / 5%);
-                    box-shadow: inset 0 0px 0px rgb(0 0 0 / 5%);
-                    }
                     .leaflet-container { background: #8192A0; }
                    
                    .nav-tabs {
@@ -115,6 +101,9 @@ ui <- fluidPage(
                     font-size: 16px;
                     text-align: center;
                   }
+                  #countriesColumn {
+                  margin-top: 0px;
+                  }
                   body {
                     color: #fff;
                   }
@@ -127,13 +116,16 @@ ui <- fluidPage(
                     #columnTitle {
                     margin-left: 20px;
                     }
+                    #col-sm-5{
+                    margin-top: 0px;
+                    }
                     #authorsTable {
                     margin-left: 10px;
                     }
-                    .nav-tabs {
+                    #navbar-collapse-9350 {
                     border-bottom: 0px solid #ddd;
                     margin-bottom: 10px;
-                    background-color: transparent;
+                    background-color: #000000;
                     }
                     .nav>li>a {
                     color: white;
@@ -169,8 +161,8 @@ ui <- fluidPage(
                     border-top: 1px solid #C44A17;
                     border-bottom: 1px solid #C44A17;
                     background: #C44A17;
-                  }
-                                  .irs--shiny .irs-single {
+                    }
+                  .irs--shiny .irs-single {
                     color: #fff;
                     text-shadow: none;
                     padding: 1px 3px;
@@ -178,11 +170,35 @@ ui <- fluidPage(
                     border-radius: 3px;
                     font-size: 11px;
                     line-height: 1.333;
-                }")),
+                  }
+                  body {
+                  padding-bottom: 50px;
+                  }"
+                  )),
+  
+  #compress menu
+  # tags$div(class = "myMenu",
+  #          tags$link('rel="stylesheet" 
+  #          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"'),
+  #          tags$a('href="javascript:void(0);" class="icon" onclick="myFunction()"')
+  #          ),
+  
+  # Footer
+  tags$footer(
+    style = "position: fixed; bottom: 0; z-index: 9999;
+    width: 100%; background-color: #8192A0; color: white; 
+    padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;
+    text-align: center; font-size: 10px;",
+    HTML("This App has been conceived by the Human Flourishing Team of the Tec de Monterrey and 
+    developed in R Programming Shiny Apps with the support of Templeton World Charity Foundation. 
+                     More info about <a href='https://tec.mx/es/florecimiento-humano/entorno-para-florecer/mapeo-de-florecimiento-humano-en-latinoamerica' 
+                     target='_blank'>Landscaping Regional Research and Leadership Capacities for the 
+         Study of Human Flourishing in Mexico, Colombia, Chile, and Brazil</a>."
+    )),
 
-        #start of the general panel
-        wellPanel(
-          tabsetPanel(
+        # #start of the general panel
+        # wellPanel(
+        #   tabsetPanel(id = "myMenu",
             
             ####INTRO TAB####
             tabPanel("Intro", HTML('<div id="frontPage"><h1 id="myTitle">Human Flourishing<br>in Latin America</h1><br>
@@ -213,7 +229,6 @@ ui <- fluidPage(
             ####COUNTRIES####
             tabPanel("Countries", 
                      column(7,
-                            #HTML("Click on any country to display more information"),
                             leafletOutput("leafdown"),
                             absolutePanel(bottom= 10, left = 40,
                                           prettyRadioButtons("continents", "Range of display:",
@@ -227,7 +242,8 @@ ui <- fluidPage(
                      column(5,
                             htmlOutput("instruction"),
                             htmlOutput("columnTitle"),
-                            plotlyOutput("relevanceScore", height = 120),
+                            plotlyOutput("productivity", height = 100),
+                            plotlyOutput("relevanceScore", height = 100),
                             plotlyOutput("relevanceWords", height = 300),
                             htmlOutput("tableTitle"),
                             dataTableOutput("authorsTable")#,
@@ -238,7 +254,10 @@ ui <- fluidPage(
             ####AUTHORS####
             tabPanel("Authors", 
                      column(5,
-                       prettyRadioButtons("radio", label = "Criteria of Popularity",
+                            HTML("You can filter authors by comparing their <b>relevance vs. productivity</b> 
+                                 (number of published documents within the filed) or their <b>relevance vs. 
+                                 total citations</b>:<br><br>"),
+                       prettyRadioButtons("radio", label = NULL,
                                     choices = list("Productivity" = "productivity", "Total Citations" = "TC"), 
                                     selected = "productivity",shape="square", thick = TRUE),
                        conditionalPanel(
@@ -248,8 +267,7 @@ ui <- fluidPage(
                                      min = min(data$productivity),
                                      max = max(data$productivity),
                                      value = 10)
-                       )
-                       ,
+                       ),
                        conditionalPanel(
                          condition = "input.radio == 'TC'",
                          sliderInput("citations",
@@ -257,8 +275,7 @@ ui <- fluidPage(
                                      min = min(data$TC),
                                      max = max(data$TC),
                                      value = 1000)
-                       )
-                       ,
+                       ),
                        sliderInput("relevance",
                                    "Grade of Relevance:",
                                    min = min(data$score),
@@ -268,22 +285,38 @@ ui <- fluidPage(
                      ),
                      
                      column(7,
-                            HTML("<h3>Each point is an author, you can consult their works by clicking on the points.</h3>"),
-                            plotlyOutput("distPlot"),
+                            HTML("<h5 id='countriesColumn'>Each point is an author, you can consult their works by clicking on the points. 
+                                 You can also filter by country by double clicking on them:</h5>"),
+                            plotlyOutput("distPlot")%>% withSpinner(color="white"),
                             HTML("<br>"),
                             htmlOutput("authorName"),
                             dataTableOutput("worksTable")
                      )
                      ),
+            tabPanel("Evolution Map",
+                     
+                     column(7,
+                     HTML("<h4>2000:2007</h4>"),
+                     plotlyOutput("thematic1")%>% withSpinner(color="white"),
+                     HTML("<h4>2008:2015</h4>"),
+                     plotlyOutput("thematic2")%>% withSpinner(color="white"),
+                     HTML("<h4>2016:2024</h4>"),
+                     plotlyOutput("thematic3")%>% withSpinner(color="white")
+                     ),
+                     column(5,
+                     HTML('<div id="evolutionMapText"><h1 id="evolutionTitle">Evolution Map</h1><br></div>')
+                       )
+            ),
             tabPanel("About", 
             HTML('<div id="about"><h1 id="aboutTitle">About</h1><br>
                                    <p id="aboutText">This text is an example of how the content will be displayed. 
                  This text is an example of how the content will be displayed. 
                  This text is an example of how the content will be displayed. 
                  This text is an example of how the content will be displayed. 
-                 This text is an example of how the content will be displayed.</p></div>'))
+                 This text is an example of how the content will be displayed.</p></div>')
             )
-          )
+          #   )
+          # )
   )
 
 # Define server logic required to draw a histogram
@@ -296,23 +329,6 @@ server <- function(input, output) {
                                        rename(Relevance=score) %>% 
                                        arrange(desc(Relevance)),
                                      width= "100%")
-  # output$criteriaPlot <- renderPlotly({
-  #   relevantWordsPlot <- relevantWords %>% 
-  #     mutate(text=paste(Words, score, sep = " ")) %>% 
-  #     ggplot(aes(score, reorder(as_factor(Words), score), text=text))+
-  #     geom_col(fill="#C44A17")+
-  #     ylab(NULL)+
-  #     theme(
-  #       panel.background = element_rect(fill='transparent'),
-  #       plot.background = element_rect(fill='transparent', color=NA),
-  #       panel.grid.major = element_blank(),
-  #       panel.grid.minor = element_blank(),
-  #       title = element_text(colour = "#ffffff", size=10)
-  #     )
-    
-    #ggplotly(relevantWordsPlot, tooltip = c("text"))%>% config(displayModeBar = FALSE)
-    
-  #})
   
   ####MAP SERVER####
   
@@ -328,11 +344,24 @@ server <- function(input, output) {
       countriesRelevance <- countriesRelevance  %>% 
         filter(continent== "South America" | subregion=="Central America")
       
-      maxScore <- max(countriesRelevance$totalScore, na.rm = TRUE)
+      
+      #maxScore <- max(countriesRelevance$totalScore, na.rm = TRUE)
+      myColors <- tibble(Productivity=pull(filter(countriesRelevance, !Countries=="BRAZIL")[,8]), 
+                         color=my_palette[cut(pull(filter(countriesRelevance, !Countries=="BRAZIL")[,8]),
+                                              11)]) %>% 
+        add_row(Productivity=194486, color="black")
+      
+      myColorsL <- tibble(Productivity=c("0", "up to 1000", "up to 10000", "up to 40000"), 
+                         color=my_paletteL[cut(c(0, 1000, 10000, 40000),
+                                              4)]) %>% 
+        add_row(Productivity="up to 200000", color="black")
+      
+      countriesRelevance <- countriesRelevance %>% 
+        left_join(myColors) %>%
+        distinct() 
       
       output$leafdown <- renderLeaflet({
         map <- leaflet(countriesRelevance$geom) %>% 
-          #setView(lat = 30, lng = 18, zoom = 2) 
           setView(lat = -15, lng = -75, zoom = 3.4)
         
         map %>% 
@@ -350,29 +379,65 @@ server <- function(input, output) {
               dashArray = "",
               fillOpacity = 1,
               bringToFront = TRUE),
-            label = paste(countriesRelevance$Countries,
-                          countriesRelevance$totalScore, sep = " "),
+            label = map(glue("<b>{as.character(countriesRelevance$Countries)}</b><br>
+                             Productivity: <span>{as.character(countriesRelevance$Productivity)}</span><br>
+                             Relevance Score: <span>{as.character(countriesRelevance$percen)}</span>"),
+                        htmltools::HTML),
             labelOptions = labelOptions(
               style = list("font-weight" = "normal", padding = "3px 8px"),
               textsize = "15px",
               direction = "auto")
           ) %>% 
-          addLegend(colors = myColors$color,
-                    labels = myColors$score)
+          addLegend(colors = myColorsL$color,
+                    labels = myColorsL$Productivity,
+                    opacity = 1)
         
       })
       
       observeEvent(input$leafdown_shape_click, { # update the location selectInput on map clicks
         
         output$columnTitle <- renderPrint ({
-          h2(input$leafdown_shape_click$id)
+          HTML("<h2 id='countriesColumn'>", input$leafdown_shape_click$id, "</h2>")
+        })
+        
+        output$productivity <- renderPlotly({
+          relevancePlot <- countriesRelevance %>% 
+            #mutate(percen=totalScore/maxScore*100) %>%
+            mutate(text=paste0("<b>", Countries,"</b>", "<br>",
+                               Productivity, " documents found")) %>% 
+            filter(Countries==input$leafdown_shape_click$id) %>% 
+            select(Countries, Productivity, text) %>% 
+            distinct() %>% 
+            ggplot(aes(Productivity, Countries, text=text))+
+            geom_col(fill="#C44A17")+
+            geom_col(aes(194485, Countries), color="white", fill= "transparent", show.legend = FALSE)+
+            ggtitle("Productivity", 
+                    subtitle = "The relevance score is the mean of the 5 most frequent relevant words")+
+            ylab(NULL)+
+            xlab(NULL)+
+            scale_x_continuous(limits = c(0,194486), expand = c(0, 0)) +
+            #xlim(0, 100)+
+            theme(axis.text.y=element_blank(), 
+                  axis.ticks.y=element_blank())+
+            theme(
+              panel.background = element_rect(fill='transparent'),
+              plot.background = element_rect(fill='transparent', color=NA),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              title = element_text(colour = "#ffffff", size=10)
+            )
+          
+          ggplotly(relevancePlot, tooltip = c("text")) %>% 
+            config(displayModeBar = FALSE) %>% 
+            layout(xaxis=list(fixedrange=TRUE)) %>% 
+            layout(yaxis=list(fixedrange=TRUE))
         })
         
         output$relevanceScore <- renderPlotly({
           relevancePlot <- countriesRelevance %>% 
-            mutate(percen=totalScore/maxScore*100) %>%
+            #mutate(percen=totalScore/maxScore*100) %>%
             mutate(text=paste0("<b>", Countries,"</b>", "<br>",
-                               " Relevance Score ", round(percen, 2), "%")) %>% 
+                               "Relevance Score ", percen, "%")) %>% 
             filter(Countries==input$leafdown_shape_click$id) %>% 
             select(Countries, totalScore, percen, text) %>% 
             distinct() %>% 
@@ -410,8 +475,8 @@ server <- function(input, output) {
             mutate(text=paste0("<b>", word, "</b>", "<br>", 
                                "Frequency: ", n,"<br>",
                                round(percen, 2), "%")) %>% 
-            mutate(word=if_else(score>92, paste0(word, "      "), 
-                                if_else(score>89, paste0(word, "  "), word))) %>% 
+            mutate(word=if_else(percen<5, paste0("      ", word), 
+                                if_else(percen<10, paste0("  ", word), word))) %>% 
             ggplot(aes(percen, reorder(as_factor(word), percen), text=text,
                        group=percen))+
             geom_col(fill="#C44A17")+
@@ -466,7 +531,20 @@ server <- function(input, output) {
       #close just latin america
     }
     else{
-      maxScore <- max(countriesRelevance$totalScore, na.rm = TRUE)
+      #maxScore <- max(countriesRelevance$totalScore, na.rm = TRUE)
+      myColors <- tibble(Productivity=pull(filter(countriesRelevance, !Countries=="BRAZIL")[,8]), 
+                         color=my_palette[cut(pull(filter(countriesRelevance, !Countries=="BRAZIL")[,8]),
+                                              11)]) %>% 
+        add_row(Productivity=194486, color="black")
+      
+      myColorsL <- tibble(Productivity=c("0", "up to 1000", "up to 10000", "up to 40000"), 
+                          color=my_paletteL[cut(c(0, 1000, 10000, 40000),
+                                                4)]) %>% 
+        add_row(Productivity="up to 200000", color="black")
+      
+      countriesRelevance <- countriesRelevance %>% 
+        left_join(myColors) %>%
+        distinct() 
       
       output$leafdown <- renderLeaflet({
         map <- leaflet(countriesRelevance$geom) %>% 
@@ -479,7 +557,7 @@ server <- function(input, output) {
             opacity = 1,
             color = "white",
             dashArray = "",
-            fillOpacity = 0.7,
+            fillOpacity = 1,
             layerId = countriesRelevance$Countries,
             highlight = highlightOptions(
               weight = 4,
@@ -487,15 +565,18 @@ server <- function(input, output) {
               dashArray = "",
               fillOpacity = 1,
               bringToFront = TRUE),
-            label = paste(countriesRelevance$Countries,
-                          countriesRelevance$totalScore, sep = " "),
+            label = map(glue("<b>{as.character(countriesRelevance$Countries)}</b><br>
+                             Productivity: <span>{as.character(countriesRelevance$Productivity)}</span><br>
+                             Relevance Score: <span>{as.character(countriesRelevance$percen)}</span>"),
+                        htmltools::HTML),
             labelOptions = labelOptions(
               style = list("font-weight" = "normal", padding = "3px 8px"),
               textsize = "15px",
               direction = "auto")
           ) %>% 
-          addLegend(colors = myColors$color,
-                    labels = myColors$score)
+          addLegend(opacity = 1,
+                    colors = myColorsL$color,
+                    labels = myColorsL$Productivity)
         
       })
       
@@ -505,11 +586,44 @@ server <- function(input, output) {
           h2(input$leafdown_shape_click$id)
         })
         
+        output$productivity <- renderPlotly({
+          relevancePlot <- countriesRelevance %>% 
+            #mutate(percen=totalScore/maxScore*100) %>%
+            mutate(text=paste0("<b>", Countries,"</b>", "<br>",
+                               Productivity, " documents found")) %>% 
+            filter(Countries==input$leafdown_shape_click$id) %>% 
+            select(Countries, Productivity, text) %>% 
+            distinct() %>% 
+            ggplot(aes(Productivity, Countries, text=text))+
+            geom_col(fill="#C44A17")+
+            geom_col(aes(194485, Countries), color="white", fill= "transparent", show.legend = FALSE)+
+            ggtitle("Productivity (log scale)", 
+                    subtitle = "The relevance score is the mean of the 5 most frequent relevant words")+
+            ylab(NULL)+
+            xlab(NULL)+
+            scale_x_log10(limits = c(1,194486), expand = c(0, 0)) +
+            #xlim(0, 100)+
+            theme(axis.text.y=element_blank(), 
+                  axis.ticks.y=element_blank())+
+            theme(
+              panel.background = element_rect(fill='transparent'),
+              plot.background = element_rect(fill='transparent', color=NA),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              title = element_text(colour = "#ffffff", size=10)
+            )
+          
+          ggplotly(relevancePlot, tooltip = c("text")) %>% 
+            config(displayModeBar = FALSE) %>% 
+            layout(xaxis=list(fixedrange=TRUE)) %>% 
+            layout(yaxis=list(fixedrange=TRUE))
+        })
+        
         output$relevanceScore <- renderPlotly({
           relevancePlot <- countriesRelevance %>% 
-            mutate(percen=totalScore/maxScore*100) %>%
+            #mutate(percen=totalScore/maxScore*100) %>%
             mutate(text=paste0("<b>", Countries,"</b>", "<br>",
-                               " Relevance Score ", round(percen, 2), "%")) %>% 
+                               "Relevance Score ", percen, "%")) %>% 
             filter(Countries==input$leafdown_shape_click$id) %>% 
             select(Countries, totalScore, percen, text) %>% 
             distinct() %>% 
@@ -549,8 +663,8 @@ server <- function(input, output) {
             mutate(text=paste0("<b>", word, "</b>", "<br>", 
                                "Frequency: ", n,"<br>",
                                round(percen, 2), "%")) %>% 
-            mutate(word=if_else(percen>92, paste0(word, "      "), 
-                                if_else(percen>89, paste0(word, "  "), word))) %>% 
+            mutate(word=if_else(percen<5, paste0("      ", word), 
+                                if_else(percen<10, paste0("  ", word), word))) %>% 
             ggplot(aes(percen, reorder(as_factor(word), percen), text=text,
                        group=percen))+
             geom_col(fill="#C44A17")+
@@ -611,7 +725,7 @@ server <- function(input, output) {
       filter(score>=input$relevance) %>% 
       mutate(scoreN=(score-min(score))/(max(score)-min(score))) %>% 
       mutate(productivityN=(productivity-min(productivity))/(max(productivity)-min(productivity))) %>% 
-      mutate(text=paste0(Authors, "\n", 
+      mutate(text=paste0("<b>",Authors, "</b>", "\n", 
                          Affiliations, "\n",
                          Countries, "\n",
                          "Productivity: ", productivity, "\n",
@@ -650,7 +764,7 @@ server <- function(input, output) {
       filter(score>=input$relevance) %>% 
       mutate(scoreN=(score-min(score))/(max(score)-min(score))) %>% 
       mutate(TCN=(TC-min(TC))/(max(TC)-min(TC))) %>% 
-      mutate(text=paste0(Authors, "\n", 
+      mutate(text=paste0("<b>",Authors, "</b>", "\n", 
                          Affiliations, "\n",
                          Countries, "\n",
                          "Productivity: ", productivity, "\n",
@@ -721,13 +835,27 @@ server <- function(input, output) {
   
   output$worksTable = renderDataTable({
     papers %>% 
-      filter(str_detect(Authors, event_data("plotly_click")$key)) %>% 
+      filter(str_detect(Authors, paste0("\\b", event_data("plotly_click")$key, "\\b"))) %>% 
+                        #event_data("plotly_click")$key)) %>% 
       arrange(desc(Score)) %>% 
       datatable(rownames = FALSE, escape = FALSE,
                 options = list(searching = FALSE, pageLength = 25,lengthMenu = c(50, 100, 500, 1000), scrollX = T,
                                width="100%",autoWidth = TRUE)) %>% 
       DT::formatStyle(columns = 1:6, color="white", fontSize = '75%')
   })
+  
+  ####THEMATIC EVOLUTION SERVER####
+  output$thematic1 <- renderPlotly(
+  readRDS("data/ggplotly_11.RDS")
+  )
+  
+  output$thematic2 <- renderPlotly(
+    readRDS("data/ggplotly_22.RDS")
+  )
+  
+  output$thematic3 <- renderPlotly(
+    readRDS("data/ggplotly_33.RDS")
+  )
   
 }
 
