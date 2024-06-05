@@ -27,169 +27,24 @@ my_palette <- grDevices::colorRampPalette(rev(c("#162F43","#3B4952","#55636D","#
 my_paletteL <- grDevices::colorRampPalette(rev(c("#162F43","#3B4952","#55636D","#6D7E8B", 
                                                  "#8192A0")))(5)
 
-# noNAScores <- countriesRelevance %>% 
-#   filter(!is.na(percen))
-
-ui <- navbarPage(collapsible = TRUE,
+####USER INTERFACE####
+ui <- tagList(
+  
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+  ),
   
   useShinyjs(),
   
   setBackgroundColor(color = "#8192A0"),
   
-  #hide error due to not displaying the table at the beginning
-  tags$style(type="text/css",
-             ".shiny-output-error { visibility: hidden; }",
-             ".shiny-output-error:before { visibility: hidden; }"
-  ),
-  
-  #adjust lealfet map to canvas
-  tags$style(type = "text/css", "#leafdown {height: calc(100vh - 80px) !important;}"),
-  
-  #more adjustments
-  tags$head(
-    tags$style(HTML("
-                    .leaflet-container { background: #8192A0; }
-                   
-                   .nav-tabs {
-                    border-bottom: 0px solid #ddd;
-                   }
-                   .continents{
-                   background-color: white;
-                   }
-                  #frontPage {
-                    margin: 0;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                  }
-                  #about {
-                    margin: 0;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                  }
-                  #myTitle{
-                    font-weight: bold;
-                    font-size: 60px;
-                    text-align: center;
-                  }
-                  #subtitle {
-                    font-size: 16px;
-                    text-align: center;
-                  }
-                  #criteriaText {
-                    text-align: left;
-                  }
-                  #criteriaTitle{
-                    font-weight: bold;
-                    font-size: 60px;
-                  }
-                  #criteriaSubtitle {
-                    font-size: 16px;
-                  }
-                  #authorName {
-                    text-align: center;
-                  }
-                  #aboutTitle {
-                    font-weight: bold;
-                    font-size: 60px;
-                    text-align: center;
-                  }
-                  #aboutText {
-                    font-size: 16px;
-                    text-align: center;
-                  }
-                  #countriesColumn {
-                  margin-top: 0px;
-                  }
-                  body {
-                    color: #fff;
-                  }
-                    a:link {
-                    color: #B0BAC3;
-                    }
-                    div.datatables {
-                    color: #fff;
-                    }
-                    #columnTitle {
-                    margin-left: 20px;
-                    }
-                    #col-sm-5{
-                    margin-top: 0px;
-                    }
-                    #authorsTable {
-                    margin-left: 10px;
-                    }
-                    #navbar-collapse-9350 {
-                    border-bottom: 0px solid #ddd;
-                    margin-bottom: 10px;
-                    background-color: #000000;
-                    }
-                    .nav>li>a {
-                    color: white;
-                    font-weight: bold;
-                    background-color: transparent;
-                    }
-                    .nav-tabs>li.active>a {
-                     font-weight: bold;
-                    color: #C44A17;
-                    background-color: transparent;
-                    cursor: default;
-                    border: 0px;
-                    border-bottom-color: transparent;
-                    }
-                    .nav>li:hover>a {
-                    color: #C44A17;
-                    font-weight: bold;
-                    background-color: transparent;
-                    border: 0px;
-                    }
-                    .nav-tabs>li.active>a:focus {
-                    color: #C44A17;
-                    font-weight: bold;
-                    background-color: transparent;
-                    border: 0px;
-                    }
-                    "))),
-  
-  #color of slider bars
-  tags$style(HTML(".irs--shiny .irs-bar {
-                    top: 25px;
-                    height: 8px;
-                    border-top: 1px solid #C44A17;
-                    border-bottom: 1px solid #C44A17;
-                    background: #C44A17;
-                    }
-                  .irs--shiny .irs-single {
-                    color: #fff;
-                    text-shadow: none;
-                    padding: 1px 3px;
-                    background-color: #C44A17;
-                    border-radius: 3px;
-                    font-size: 11px;
-                    line-height: 1.333;
-                  }
-                  body {
-                  padding-bottom: 50px;
-                  }"
-                  )),
-  
-  #compress menu
-  # tags$div(class = "myMenu",
-  #          tags$link('rel="stylesheet" 
-  #          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"'),
-  #          tags$a('href="javascript:void(0);" class="icon" onclick="myFunction()"')
-  #          ),
-  
   # Footer
   tags$footer(
     style = "position: fixed; bottom: 0; z-index: 9999;
-    width: 100%; background-color: #8192A0; color: white; 
+    width: 100%; background-color: #8192A0; color: white;
     padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;
     text-align: center; font-size: 10px;",
-    HTML("This App has been conceived by the Human Flourishing Team of the Tec de Monterrey and 
+    HTML("This site has been conceived by the Human Flourishing Team of the Tec de Monterrey and 
     developed in R Programming Shiny Apps with the support of Templeton World Charity Foundation. 
                      More info about <a href='https://tec.mx/es/florecimiento-humano/entorno-para-florecer/mapeo-de-florecimiento-humano-en-latinoamerica' 
                      target='_blank'>Landscaping Regional Research and Leadership Capacities for the 
@@ -199,11 +54,22 @@ ui <- navbarPage(collapsible = TRUE,
         # #start of the general panel
         # wellPanel(
         #   tabsetPanel(id = "myMenu",
+  
+  navbarPage(collapsible = TRUE,
             
             ####INTRO TAB####
-            tabPanel("Intro", HTML('<div id="frontPage"><h1 id="myTitle">Human Flourishing<br>in Latin America</h1><br>
-                                   <p id="subtitle">Recognizing the regional research landscape and leadership capabilities
-                                   in the study of Human Flourishing in Mexico, Colombia, Chile and Brazil.</p></div>')),
+            tabPanel("Intro"#, 
+            # HTML('<div id="frontPage"><h1 id="myTitle">Human Flourishing<br>in Latin America</h1><br>
+            #                         <p id="subtitle">Recognizing the regional research landscape and leadership capabilities
+            #                         in the study of Human Flourishing in Mexico, Colombia, Chile and Brazil.</p></div>')
+            ),
+            
+            tabPanel("Home", 
+                     HTML('<div id="frontPage"><h1 id="myTitle">Human Flourishing<br>in Latin America</h1><br>
+                                    <p id="subtitle">Recognizing the regional research landscape and leadership capabilities
+                                    in the study of Human Flourishing in Mexico, Colombia, Chile and Brazil.</p></div>')
+            ),
+            
             
             ####CRITERIA####
             tabPanel("Criteria", 
@@ -316,7 +182,7 @@ ui <- navbarPage(collapsible = TRUE,
                  This text is an example of how the content will be displayed.</p></div>')
             )
           #   )
-          # )
+     )
   )
 
 # Define server logic required to draw a histogram
