@@ -12,17 +12,18 @@ library(shinyjs)
 library(bslib)
 library(glue)
 library(shinycssloaders)
+library(ggtext)
 
 
 #load data
 countriesRelevance = readRDS("data/countriesRelevance.RDS")
 topRelevantAuthors = readRDS("data/topRelevantAuthors.RDS")
 relevantWords = readRDS("data/relevantWords.rds")
-data = readRDS("data/topWordsAuthors.rds")
-papers = readRDS("data/scoredPapers.rds")
+data = readRDS("data/wordsAuthorsIndex.rds")
+papers = readRDS("data/scoredPapersIndex.rds")
 institutions = readRDS("data/scoredInstitutions.rds")
-papersByCountry = readRDS("data/papersByCountry.rds")
-TopPapers = readRDS("data/100TopPapers.rds")
+papersByCountryYear = readRDS("data/papersByCountryYear.rds")
+TopPapers = readRDS("data/TopPapersIndex.rds")
 LAcountries = readRDS("data/LAcountries.rds")
 typesData = readRDS("data/typesData.rds")
 
@@ -71,75 +72,52 @@ ui <- tagList(
             ),
             
             tabPanel("Home", 
-                     HTML('<div id="frontPage"><h1 class="myTitle">Human Flourishing<br>in Latin America</h1><br>
-                                             <p id="subtitle">Recognizing the regional research landscape and leadership capabilities
-                                             in the study of Human Flourishing in Mexico, Colombia, Chile and Brazil.</p>
-                                             <img id="logo1" src="logoTec2.png"><img id="logo2" src="https://www.templeton.org/wp-content/uploads/2022/01/JTF_logo_wtagline.png">
-                          </div>')
-            ),
-            
-            ####DATA TAB####
-            tabPanel("Data", 
-                     htmlOutput("dataInfo"),
-                     column(6, 
-                            plotlyOutput("typesPlot", height = "300px")%>% withSpinner(color="white")
-                            ),
-                     column(6,
-                            plotlyOutput("papersYear", height = "300px")%>% withSpinner(color="white"),
-                            HTML("<br><br>")
-                            ),
-                     column(4,
-                            plotlyOutput("dataInfo1")%>% withSpinner(color="white"),
-                            HTML("<br>"),
-                            htmlOutput("dataInfo1.1"),
-                            card(
-                              #card_header(HTML("<h3>RELEVANCE SCORE TABLE</h3>")),
-                              height = 300,
-                              style = "resize:vertical;",
-                              card_body(
-                                min_height = 300,
-                                tableOutput("dataInfo1.2")%>% withSpinner(color="white")
-                              ))%>% tagAppendAttributes(class="infoTable")
-                            ),
-                     column(4,
-                            plotlyOutput("dataInfo2")%>% withSpinner(color="white"),
-                            HTML("<br>"),
-                            htmlOutput("dataInfo2.1"),
-                            card(
-                              #card_header(HTML("<h3>RELEVANCE SCORE TABLE</h3>")),
-                              height = 300,
-                              style = "resize:vertical;",
-                              card_body(
-                                min_height = 300,
-                                tableOutput("dataInfo2.2")%>% withSpinner(color="white")
-                              ))%>% tagAppendAttributes(class="infoTable")
-                            ),
-                     column(4,
-                            plotlyOutput("dataInfo3")%>% withSpinner(color="white"),
-                            HTML("<br>"),
-                            htmlOutput("dataInfo3.1"),
-                            card(
-                              #card_header(HTML("<h3>RELEVANCE SCORE TABLE</h3>")),
-                              height = 300,
-                              style = "resize:vertical;",
-                              card_body(
-                                min_height = 300,
-                                tableOutput("dataInfo3.2")%>% withSpinner(color="white")
-                              ))%>% tagAppendAttributes(class="infoTable")
-                     )
+                     HTML('<div id="frontPage"><div class="frontElements"><h1 class="myTitle">Human Flourishing<br>in Latin America</h1><br>
+                                             <p id="subtitle">Landscaping Regional Research and Leadership Capacities for the 
+                                             Study of Human Flourishing in 
+                                             Mexico, Colombia, Chile, and Brazil.</p><br><a href="https://tec.mx/es/florecimiento-humano/entorno-para-florecer/mapeo-de-florecimiento-humano-en-latinoamerica" target="_blank"> 
+                                             <img id="logos" src="logoTec2.png"></a>  <a href="https://www.templetonworldcharity.org/" target="_blank"><img id="logos" src="logoTempleton.png"></a>
+                          </div></div>')
             ),
             
             ####CRITERIA####
             tabPanel("Criteria", 
                      column(6, 
                             HTML('<div id="criteriaText"><h1 id="criteriaTitle">Criteria</h1><br>
-                                   <p id="criteriaSubtitle">Recognizing the regional research landscape and leadership capabilities
-                                   in the study of Human Flourishing in Mexico, Colombia, Chile and Brazil.</p></div>')
+                                   <p id="criteriaSubtitle">The relevance criterion rates scholarly 
+                                   products and authors based on their keywords. Each keyword related to 
+                                   human flourishing has a number of points. The keywords contained in an 
+                                   article or in an author´s publications (up to five keywords) give a 
+                                   sum of points which is its relevance rating. In this process, 93 keywords 
+                                   in Spanish, Portuguese and English related to human flourishing were used. 
+                                   The 20 most frequent keywords are: human-rights, indigenous, religion, 
+                                   sustainability, spirituality, virtue, circular-economy, quality-of-life, 
+                                   common-good, social-justice, human-dignity, happiness, well-being, capacities, 
+                                   positive-psychology, human-development, eudaimonia, environmental-resilience, 
+                                   good-living/sumak-kawsay, human-flourishing.
+                                    The criterion of relevance is independent of the number of publications by an 
+                                 author and the number of citations of a publication or an author. The number of 
+                                 publications by an author is called productivity, while the number of citations 
+                                 is called influence. In this tool, you can search by productivity and influence, 
+                                 while the results are ordered according to relevance.</p></div>'),
+                            
+                            #defining criterias as acordions
+                            radioGroupButtons(
+                              inputId = "criterias",
+                              label = "",
+                              status = "primary",
+                              choices = c("Productivity",
+                                          "Influence",
+                                          "Relevance",
+                                          "Index"),
+                              justified = TRUE
+                            ),
+                            htmlOutput("criteriaDefinition")
                             ),
                      column(6,
                             card(
                               card_header(HTML("<h3>RELEVANCE SCORE TABLE</h3>")),
-                              height = 800,
+                              height = 600,
                               style = "resize:vertical;",
                               card_body(
                                 min_height = 500,
@@ -150,6 +128,88 @@ ui <- tagList(
                      )
                      ),
                      
+            ####DATA TAB####
+            tabPanel("Data", 
+                     htmlOutput("dataInfo"),
+                            column(4, offset = 4,  
+                                   awesomeRadio("dataCountries", inline = TRUE, label = "",
+                                                choices = c("Region", "Mexico",
+                                                            "Colombia", "Chile", "Brazil"))),
+                     column(6, 
+                            plotlyOutput("typesPlot", height = "280px")%>% withSpinner(color="white")
+                     ),
+                     column(6,
+                            plotlyOutput("papersYear", height = "280px")%>% withSpinner(color="white"),
+                            HTML("<br><br>")
+                     ),
+                     column(12,
+                            HTML("<p text-align='center';>By clicking on any country of the pie charts you can access to the data of that specific country</p><br><br>")),
+                     column(4,
+                            plotlyOutput("dataInfo1")%>% withSpinner(color="white"),
+                            HTML("<br>"),
+                            column(12,
+                                   column(11,
+                            uiOutput("dataInfo1.1")),
+                            column(1, 
+                                   actionLink("resetPie11", "Reset", #icon = icon("recycle"),
+                                                style='padding:0px; font-size:60%'),
+                                   downloadLink('downloadData1', 'Download',
+                                                style='padding:0px; font-size:60%'))
+                            ),
+                            column(12,
+                            card(
+                              height = 300,
+                              width= "100%",
+                              style = "resize:vertical;",
+                              card_body(
+                                min_height = 300,
+                                tableOutput("dataInfo1.2")%>% withSpinner(color="white")
+                              )) %>% tagAppendAttributes(class="infoTable")
+                     )),
+                     column(4,
+                            plotlyOutput("dataInfo2")%>% withSpinner(color="white"),
+                            HTML("<br>"),
+                            column(12,
+                                   column(11,
+                                   htmlOutput("dataInfo2.1")),
+                                   column(1, 
+                                   actionLink("resetPie21", "Reset", #icon = icon("recycle"),
+                                                style='padding:0px; font-size:60%'),
+                                   downloadLink('downloadData2', 'Download',
+                                                style='padding:0px; font-size:60%'))
+                            ),
+                            column(12,
+                            card(
+                              height = 300,
+                              style = "resize:vertical;",
+                              card_body(
+                                min_height = 300,
+                                tableOutput("dataInfo2.2")%>% withSpinner(color="white")
+                              )) %>% tagAppendAttributes(class="infoTable")
+                     )),
+                     column(4,
+                            plotlyOutput("dataInfo3")%>% withSpinner(color="white"),
+                            HTML("<br>"),
+                            column(12,
+                            column(11,
+                                   htmlOutput("dataInfo3.1")),
+                            column(1, 
+                                   actionLink("resetPie31", "Reset", #icon = icon("recycle"),
+                                                style='padding:0px; font-size:60%'),
+                                   downloadLink('downloadData3', 'Download',
+                                                style='padding:0px; font-size:60%'))
+                            ),
+                            column(12,
+                                   card(
+                              height = 300,
+                              style = "resize:vertical;",
+                              card_body(
+                                min_height = 300,
+                                tableOutput("dataInfo3.2")%>% withSpinner(color="white")
+                              ))%>% tagAppendAttributes(class="infoTable")
+                     ))
+            ),
+            
             ####COUNTRIES####
             tabPanel("Countries", 
                      column(7,
@@ -232,20 +292,35 @@ ui <- tagList(
                      
                      column(7,
                             HTML("<h5 id='countriesColumn'>Each point is an author, you can consult their works by clicking on the points. 
-                                 You can also filter by country by double clicking on them:</h5>"),
+                                 Some authors can appear duplicated since they belong to institutions in different countries. You can also filter by country by double clicking on them:</h5>"),
                             plotlyOutput("distPlot")%>% withSpinner(color="white"),
                             HTML("<br>"),
                             htmlOutput("authorName"),
-                            dataTableOutput("worksTable")
+                            downloadLink('downloadData4', 'Download Table',
+                                         style='padding:0px; font-size:60%'),
+                            card(
+                              #card_header(HTML("<h3>RELEVANCE SCORE TABLE</h3>")),
+                              height = 300,
+                              style = "resize:vertical;",
+                              card_body(
+                                min_height = 300,
+                            dataTableOutput("worksTable")))
                      )
                      ),
+            ####ABOUT####
             tabPanel("About", 
-            HTML('<div id="about"><h1 id="aboutTitle">About</h1><br>
-                                   <p id="aboutText">This text is an example of how the content will be displayed. 
-                 This text is an example of how the content will be displayed. 
-                 This text is an example of how the content will be displayed. 
-                 This text is an example of how the content will be displayed. 
-                 This text is an example of how the content will be displayed.</p></div>')
+            HTML('<div id="frontPage"><div class="frontElements"><h1 id="aboutTitle">About</h1><br>
+                                   <p id="aboutText">The general objective of this research is to map the knowledge about Human Flourishing that is
+being generated in Latin America, with special emphasis on Mexico, Colombia, Chile, and Brazil,
+and also the branches that could possibly extend to other Latin American countries. The
+knowledge about Human Flourishing may be generated in scientific research centers and
+universities, but also in other knowledge repositories such as civil organizations, government
+entities, and professional associations. This initiative will help to remedy the lack of information
+about this field and eventually to support the formation of networks and collaboration among
+stakeholders in the region. The project is led by Tecnologico de Monterrey with the support of
+Universidad Católica de Chile and Universidad de Los Andes (Colombia). The research team
+includes participants from Mexico, Spain, the UK, Colombia, and Chile.</p><br>
+                 Contact: <a href="mailto:etames@tec.mx">etames@tec.mx</a> </div>')
             ), id= "MainNavBar"
           #   )
      )
@@ -255,6 +330,11 @@ ui <- tagList(
 server <- function(session, input, output) {
   
   hide("links")
+  disable("resetPie11")
+  disable("resetPie21")
+  disable("resetPie31")
+  hide("downloadData4")
+  
   
   ####Register plotly events####
   plotlyEvent1 <- reactive({
@@ -274,73 +354,200 @@ server <- function(session, input, output) {
   })
   
   ####HOME SERVER ####
-  # output$frontPage <- renderUI(HTML('<div><h1 id="myTitle">Human Flourishing<br>in Latin America</h1><br>
-  #                                   <p id="subtitle">Recognizing the regional research landscape and leadership capabilities
-  #                                   in the study of Human Flourishing in Mexico, Colombia, Chile and Brazil.</p>
-  #                         </div>'))
-  # 
-  # 
+
+  
+  ####CRITERIA SERVER####
+  
+  observe({
+    input$criterias
+    if(input$criterias=="Productivity"){
+      output$criteriaDefinition <- renderUI(
+        HTML("<font size='2'>It reflects the number of documents that an actor (author, institution,
+             or country) has within the collected database. Due the huge size of 
+             our database, there are many actors that work in very productive fields 
+             which can not be of interest to human flourishing. However, it is a 
+             variable to take into account.</font>"))
+    }
+    if(input$criterias=="Influence"){
+      output$criteriaDefinition <- renderUI(
+        HTML("<font size='2'>It reflects the number of citations that an actor (author, institution,
+             or country) has within the collected database. Due the huge size of 
+             our database, there are many influential actors that work in very popular fields 
+             which can not be of interest to human flourishing. However, it is a 
+             variable to take into account.</font>"))
+    }
+    if(input$criterias=="Relevance"){
+      output$criteriaDefinition <- renderUI(
+        HTML("<font size='2'>This is the criteria explained in this page, with wich an actor (author, institution,
+             or country) receives a score according to the use frequency of some words that we stablished 
+             as the most relevant for human flourishing, and that can be consulted beside. Due to this 
+             criteria just take into account the relevance of the 5 most frequent words of each author, 
+             it is feasible that an actor has a very few number of publications and/or citations while 
+             having a high relevance score.</font>"))
+    }
+    if(input$criterias=="Index"){
+      output$criteriaDefinition <- renderUI(
+        HTML("<font size='2'>This criteria tries to balance the precedent ones, by combining the more quantitative values with 
+             the more qualitative approach. More particularly 
+             we wanted to priorize the relevant score, but also giving protagonism to productivity and 
+             influence. The agreed formula 
+             was the three times multiplication of the relevance score by the productivity and the influence: 
+             <b>Index = Relevance<sup>4</sup> * Productivity * Influence</b></font>"))
+    }
+  })
+  
+  output$criteriaPlot <- renderTable(relevantWords %>%
+                                       rename(Word=Words) %>% 
+                                       rename(Relevance=score) %>% 
+                                       arrange(desc(Relevance)),
+                                     width= "100%")
+  
   ####DATA SERVER####
   output$dataInfo <- renderUI(HTML("The information available on the current site was obtained from two huges 
-  bibliographic databases: openAlex and Scopus. More than 300 thousand of academic document references were downloaded 
+  bibliographic databases: openAlex and Scopus. A total of 266 thousand of academic document references were downloaded 
   following a search which was the result of a combination of queries. Due to human flourishing is not a very common 
   term in academic research, and even less in Latinamerican countries, we decided to use such strategy, which is explained in 
   the Criteria Tab. The data was obtained in December 2023.<br><br><br>"))
   
-  output$typesPlot <- renderPlotly({
     
-    typesPlotly <- typesData %>% 
-      ggplot(aes(Document, n, fill=Type, text=text))+
-      geom_col()+
-      coord_flip()+
-      xlab(NULL)+
-      ylab(NULL)+
-      ggtitle("Types of documents")+
-      theme(
-        panel.background = element_rect(fill='transparent'),
-        plot.background = element_rect(fill="transparent", color=NA),
-        legend.background = element_rect(fill = "transparent"),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-    
-    ggplotly(typesPlotly, tooltip = c("text")) %>% 
-      config(displayModeBar = FALSE) %>% 
-      layout(xaxis=list(fixedrange=TRUE)) %>% 
-      layout(yaxis=list(fixedrange=TRUE))
-  })
-    
+  observeEvent(input$dataCountries,{
+      
+      if(input$dataCountries=="Region"){
+        output$typesPlot <- renderPlotly({
+        typesPlotly <- typesData %>% 
+          mutate(Type=if_else(!Type%in%c("ARTICLE", "BOOK", "BOOK CHAPTER",
+                                         "CONFERENCE PAPER", "REVIEW"), "OTHER", Type)) %>% 
+          group_by(Type) %>% 
+          summarise(n=n()) %>% 
+          ungroup() %>% 
+          mutate(Document="Document") %>% 
+          mutate(text=paste0("REGION", "\n", Type, ": ", n)) %>% 
+          ggplot(aes(Document, n, fill=Type, text=text))+
+          geom_col()+
+          coord_flip()+
+          xlab(NULL)+
+          ylab(NULL)+
+          ggtitle(paste0("Types of documents ", "<span style='font-size:10pt'>", "From a total of ", length(typesData$Type),"</span>"))+
+          theme(
+            panel.background = element_rect(fill='transparent'),
+            plot.background = element_rect(fill="transparent", color=NA),
+            legend.background = element_rect(fill = "transparent"),
+            axis.text.x=element_blank(),
+            axis.ticks.x=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank())
+        
+        ggplotly(typesPlotly, tooltip = c("text")) %>% 
+          config(displayModeBar = FALSE) %>% 
+          layout(xaxis=list(fixedrange=TRUE)) %>% 
+          layout(yaxis=list(fixedrange=TRUE))
+      })} else {
+        
+        output$typesPlot <- renderPlotly({
+        
+          totaln <- typesData %>% 
+            filter(str_detect(Countries, toupper(input$dataCountries)))
+      
+        typesPlotly <- totaln %>% 
+          group_by(Type) %>% 
+          summarise(n=n()) %>% 
+          ungroup() %>% 
+          group_by_all() %>% 
+          mutate(totaln=sum(n)) %>% 
+          ungroup() %>% 
+          mutate(Document="Document") %>% 
+          mutate(text=paste0(toupper(input$dataCountries), "\n", 
+                             Type, ": ", n)) %>% 
+          ggplot(aes(Document, n, fill=Type, text=text))+
+          geom_col()+
+          coord_flip()+
+          xlab(NULL)+
+          ylab(NULL)+
+          ggtitle(paste0("Types of documents ", "<span style='font-size:10pt'>", "From a total of ", length(totaln$Type),"</span>"))+
+          theme(
+            panel.background = element_rect(fill='transparent'),
+            plot.background = element_rect(fill="transparent", color=NA),
+            legend.background = element_rect(fill = "transparent"),
+            axis.text.x=element_blank(),
+            axis.ticks.x=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank())
+        
+        ggplotly(typesPlotly, tooltip = c("text")) %>% 
+          config(displayModeBar = FALSE) %>% 
+          layout(xaxis=list(fixedrange=TRUE)) %>% 
+          layout(yaxis=list(fixedrange=TRUE))
+      })
+      }
+      })
+  
+  observeEvent(input$dataCountries,{
+    if(input$dataCountries=="Region"){
     output$papersYear <- renderPlotly({
-    papersPlot <- papers %>% 
-      filter(Year<2024) %>% 
-      group_by(Year) %>% 
-      mutate(n=n()) %>% 
-      mutate(TC=sum(Citations)) %>% 
-      ungroup() %>% 
-      select(Year, n, TC) %>% 
-      distinct() %>% 
-      arrange(Year) %>% 
-      mutate(text=paste0("Year ", Year, "\n", 
-                         n, " documents", "\n",
-                         TC, " Citations")) %>% 
-      ggplot(aes(Year, n, text=text, group = 1))+
-      geom_point(aes(size = TC))+
-      geom_path()+
-      ylab(NULL)+
-      xlab(NULL)+
-      ggtitle("Documents by year")+
-      theme(
-        panel.background = element_rect(fill='#B0BAC3'),
-        plot.background = element_rect(fill="transparent", color=NA),
-        legend.background = element_rect(fill = "transparent"))
-    
-    ggplotly(papersPlot, tooltip = c("text")) %>% 
-      config(displayModeBar = FALSE) %>% 
-      layout(xaxis=list(fixedrange=TRUE)) %>% 
-      layout(yaxis=list(fixedrange=TRUE))
-    
-  })
+      papersPlot <- papersByCountryYear %>% 
+        group_by(Year) %>% 
+        mutate(n=sum(n)) %>% 
+        mutate(Citations=sum(TC)) %>% 
+        ungroup() %>% 
+        select(Year, n, Citations) %>% 
+        distinct() %>% 
+        arrange(Year) %>% 
+        mutate(text=paste0("<b>REGION</b>", "\n", 
+                           "Year ", Year, "\n", 
+                           n, " Documents", "\n",
+                           Citations, " Citations")) %>% 
+        ggplot(aes(Year, n, text=text, group = 1))+
+        geom_point(aes(size = Citations,colour = Citations), show.legend = TRUE)+
+        geom_path()+
+        ylab(NULL)+
+        xlab(NULL)+
+        ggtitle("Documents by year")+
+        theme(
+          panel.background = element_rect(fill='#B0BAC3'),
+          plot.background = element_rect(fill="transparent", color=NA),
+          legend.background = element_rect(fill = "transparent"),
+          plot.margin = unit(c(0, 0, 0, 0), "points"))
+      
+      ggplotly(papersPlot, tooltip = c("text")) %>% 
+        config(displayModeBar = FALSE) %>% 
+        layout(xaxis=list(fixedrange=TRUE)) %>% 
+        layout(yaxis=list(fixedrange=TRUE))
+    })
+    } else {
+      output$papersYear <- renderPlotly({
+        papersPlot <- papersByCountryYear %>% 
+          filter(str_detect(Countries, toupper(input$dataCountries))) %>% 
+          group_by(Year) %>% 
+          mutate(n=sum(n)) %>% 
+          mutate(Citations=sum(TC)) %>% 
+          ungroup() %>% 
+          select(Year, n, Citations) %>% 
+          distinct() %>% 
+          arrange(Year) %>% 
+          mutate(text=paste0("<b>",toupper(input$dataCountries),"</b>", "\n",
+                              "Year ", Year, "\n", 
+                             n, " Documents", "\n",
+                             Citations, " Citations")) %>% 
+          ggplot(aes(Year, n, text=text, group = 1))+
+          geom_point(aes(size = Citations,colour = Citations), show.legend = TRUE)+
+          geom_path()+
+          ylab(NULL)+
+          xlab(NULL)+
+          ggtitle("Documents by year")+
+          theme(
+            panel.background = element_rect(fill='#B0BAC3'),
+            plot.background = element_rect(fill="transparent", color=NA),
+            legend.background = element_rect(fill = "transparent"),
+            plot.margin = unit(c(0, 0, 0, 0), "points"))
+        
+        ggplotly(papersPlot, tooltip = c("text")) %>% 
+          config(displayModeBar = FALSE) %>% 
+          layout(xaxis=list(fixedrange=TRUE)) %>% 
+          layout(yaxis=list(fixedrange=TRUE))
+        
+      })
+    }
+    })
   
   output$dataInfo1 <- renderPlotly({
     
@@ -352,29 +559,54 @@ server <- function(session, input, output) {
                             source = "dataTab1",
                             showlegend = FALSE) %>% 
       layout(title = 'Authors by country',
-                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE)) %>% 
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE)) %>% 
       layout(plot_bgcolor='transparent') %>% 
       layout(paper_bgcolor='transparent') %>% 
       config(displayModeBar = FALSE) %>% 
       layout(xaxis=list(fixedrange=TRUE)) %>% 
       layout(yaxis=list(fixedrange=TRUE))
   })
-  
+
+
   output$dataInfo1.1 <- renderUI({
-    HTML(paste0("<h4 align='center'>Top 100 Authors ", plotlyEvent1()$key, "</h4>" ))})
+    HTML(paste0("<h4 align='center'>100 Top Index Authors ", plotlyEvent1()$key, "</h4>"))    
+    })
+  
+  observeEvent(plotlyEvent1()$key,{
+    enable("resetPie11")
+  })
+  
+  observeEvent(input$resetPie11, {
+      runjs("Shiny.setInputValue('plotly_click-dataTab1', null);")
+    disable("resetPie11")
+    })
   
   output$dataInfo1.2 <- renderTable({
     if(is.null(plotlyEvent1()$key)){
-    data %>% 
-      select(Authors, productivity) %>% 
-      slice_max(order_by = productivity, n = 100)
-      } else {
-        data %>% 
-          filter(Countries==plotlyEvent1()$key) %>% 
-          select(Authors, productivity) %>% 
-          slice_max(order_by = productivity, n = 100)
-      }
+      data %>% 
+        select(Authors, Affiliations, Index) %>% 
+        distinct() %>% 
+        group_by(Authors, Affiliations) %>% 
+        mutate(Index=mean(Index)) %>% 
+        ungroup() %>% 
+        distinct() %>% 
+        slice_max(order_by = Index, n = 100) %>% 
+        mutate(Authors=paste0(Authors, " | ", Affiliations)) %>% 
+        select(Authors, Index)
+    } else {
+      data %>% 
+        filter(Countries==plotlyEvent1()$key) %>% 
+        select(Authors, Affiliations , Index) %>% 
+        distinct() %>% 
+        group_by(Authors, Affiliations) %>% 
+        mutate(Index=mean(Index)) %>% 
+        ungroup() %>% 
+        distinct() %>% 
+        slice_max(order_by = Index, n = 100) %>% 
+        mutate(Authors=paste0(Authors," | ", Affiliations)) %>% 
+        select(Authors, Index)
+    }
   },
   width = "100%")
   
@@ -400,27 +632,43 @@ server <- function(session, input, output) {
   })
   
   output$dataInfo2.1 <- renderUI({
-    HTML(paste0("<h4 align='center'>Top 100 Institutions ", plotlyEvent2()$key, "</h4>" ))})
+    HTML(paste0("<h4 align='center'>Top 100 Index Institutions ", plotlyEvent2()$key, "</h4>" ))
+    })
+  
+  observeEvent(plotlyEvent2()$key,{
+    enable("resetPie21")
+  })
+  
+  observeEvent(input$resetPie21, {
+    runjs("Shiny.setInputValue('plotly_click-dataTab2', null);")
+    disable("resetPie21")
+  })
   
   output$dataInfo2.2 <- renderTable({
     if(is.null(plotlyEvent2()$key)){
-      data %>% 
-        count(Affiliations, sort = TRUE) %>% 
-        slice_max(order_by = n, n = 100)} else {
-          data %>% 
+      institutions %>% 
+        select(Affiliations, Index) %>% 
+        distinct() %>% 
+        slice_max(order_by = Index, n = 100) } else {
+          institutions %>% 
             filter(Countries==plotlyEvent2()$key) %>% 
-            count(Affiliations, sort = TRUE) %>% 
-            slice_max(order_by = n, n = 100)
-        }
+            select(Affiliations, Index)  %>% 
+            distinct() %>% 
+            slice_max(order_by = Index, n = 100)
+                  }
   },
   width = "100%")
   
   output$dataInfo3 <- renderPlotly({
     
-    papersByCountry %>% 
+    papersByCountryYear %>% 
+      separate_longer_delim(Countries, delim = ";") %>% 
+      group_by(Countries) %>% 
+      summarize(documents=sum(n)) %>% 
+      ungroup() %>% 
       plot_ly(labels = ~Countries, values = ~documents, key=~Countries, type = 'pie',
               source = "dataTab3",
-                            showlegend = FALSE) %>% 
+              showlegend = FALSE) %>% 
       layout(title = 'Papers by country',
              xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
              yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE)) %>% 
@@ -432,27 +680,31 @@ server <- function(session, input, output) {
   })
   
   output$dataInfo3.1 <- renderUI({
-    HTML(paste0("<h4 align='center'>Top 100 Papers ", plotlyEvent3()$key, "</h4>" ))})
+    HTML(paste0("<h4 align='center'>Top 100 Index Papers ", plotlyEvent3()$key, "</h4>" ))})
+  
+  
+  observeEvent(plotlyEvent3()$key,{
+    enable("resetPie31")
+  })
+  
+  observeEvent(input$resetPie31, {
+    runjs("Shiny.setInputValue('plotly_click-dataTab3', null);")
+    disable("resetPie31")
+  })
   
   output$dataInfo3.2 <- renderTable({
     if(is.null(plotlyEvent3()$key)){
       TopPapers %>% 
-        slice_max(order_by = Citations, n = 100) %>% 
-        select(Title, Citations)} else {
+        slice_max(order_by = Index, n = 100) %>% 
+        select(Title, Index) %>% 
+        distinct()} else {
           TopPapers %>% 
-            filter(Countries==plotlyEvent3()$key) %>% 
-            slice_max(order_by = Citations, n = 100) %>% 
-            select(Title, Citations)
-          }},
+            filter(str_detect(Countries,plotlyEvent3()$key)) %>% 
+            slice_max(order_by = Index, n = 100) %>% 
+            select(Title, Index) %>% 
+            distinct()
+        }},
     width= "100%")
-  
-  ####CRITERIA SERVER####
-  
-  output$criteriaPlot <- renderTable(relevantWords %>%
-                                       rename(Word=Words) %>% 
-                                       rename(Relevance=score) %>% 
-                                       arrange(desc(Relevance)),
-                                     width= "100%")
   
   ####MAP SERVER####
   
@@ -637,14 +889,16 @@ server <- function(session, input, output) {
         output$authorsTable <- renderDataTable({
           institutions %>% 
             filter(Countries==input$leafdown_shape_click$id) %>%
-            slice_max(order_by = Score, n = 100) %>% 
-            select(Institution=Affiliations, Relevance=Score) %>% 
-            datatable(rownames = FALSE,
+            slice_max(order_by = relevance, n = 100) %>% 
+            select(Institution=Affiliations, Relevance=relevance) %>% 
+            datatable(extensions = 'Buttons',
+                      rownames = FALSE,
                       options = list(
                         info = FALSE,
                         paging = FALSE,
-                        searching = FALSE
-                      )) %>% 
+                        searching = FALSE,
+                        buttons = c('copy', 'csv', 'excel')
+                      ),class = "display") %>% 
             DT::formatStyle(columns = 1:3, color="white", fontSize = '75%')
         })
         
@@ -918,34 +1172,6 @@ server <- function(session, input, output) {
   }
   )
   
-  output$summary <- renderPlotly({
-    summaryPlot <- data %>% 
-      filter(productivity>=input$productivity) %>% 
-      filter(score>=input$relevance) %>%
-      group_by(Countries) %>% 
-      summarize(items=n()) %>% 
-      ungroup() %>% 
-      mutate(text=paste0(Countries, "\n", "Total documents: ", items)) %>% 
-      ggplot(aes(items, reorder(as.factor(Countries), items), fill=Countries, text=text))+
-      geom_col()+
-      xlab(NULL)+
-      ylab(NULL)+
-      guides(fill=FALSE)+
-      theme(plot.background = element_rect(fill = "#f5f5f5"),
-            panel.background = element_rect(fill = "#f5f5f5"),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            axis.text.x=element_blank(), 
-            axis.ticks.x=element_blank())+
-      theme(
-        panel.background = element_rect(fill='transparent'),
-        plot.background = element_rect(fill='transparent', color=NA))
-    
-    ggplotly(summaryPlot, tooltip = "text") %>% config(displayModeBar = FALSE) %>% 
-      layout(xaxis=list(fixedrange=TRUE)) %>% 
-      layout(yaxis=list(fixedrange=TRUE)) 
-  })
-  
   hide("authorName")
   
   observeEvent(plotlyEvent4()$key, {
@@ -963,12 +1189,15 @@ server <- function(session, input, output) {
     papers %>% 
       filter(str_detect(Authors, paste0("\\b", plotlyEvent4()$key, "\\b"))) %>% 
                         #event_data("plotly_click")$key)) %>% 
-      arrange(desc(Score)) %>% 
+      arrange(desc(relevance)) %>% 
+      rename(Relevance=relevance, Influence=influence) %>% 
       datatable(rownames = FALSE, escape = FALSE,
-                options = list(searching = FALSE, pageLength = 25,lengthMenu = c(50, 100, 500, 1000), scrollX = T,
+                options = list(searching = FALSE, pageLength = 25,lengthChange = FALSE,
+                               lengthMenu = c(50, 100, 500, 1000), scrollX = T,
                                width="100%",autoWidth = TRUE)) %>% 
       DT::formatStyle(columns = 1:6, color="white", fontSize = '75%')
   })
+  show("downloadData4")
   })
   
   #search author
@@ -994,15 +1223,6 @@ server <- function(session, input, output) {
     
     myAuthors <- myAuthors[values]
     
-    
-    # myAuthors <- papers %>% 
-    #   filter(str_detect(Authors, paste0("\\b",toupper(isolate(input$nameAuthor)), "\\b"))) %>%
-    #   separate_longer_delim(Authors, delim = ";") %>% 
-    #   filter(str_detect(Authors, paste0("\\b",toupper(isolate(input$nameAuthor)), "\\b"))) %>%
-    #   select(Authors) %>% 
-    #   distinct() %>% 
-    #   pull(Authors)
-    
     updateRadioGroupButtons(
       inputId = "links",
       label= "Which author do you refer?",
@@ -1011,22 +1231,22 @@ server <- function(session, input, output) {
     show("links", time = 2)
     
       observeEvent(input$links,{
-      
-      show("authorName")
+        
+        show("authorName")
+  
     
-        observe(
-        tryCatch({
-          
           output$worksTable = renderDataTable({
+              
             papers %>% 
               filter(str_detect(Authors, paste0("\\b",toupper(isolate(input$links)), "\\b"))) %>% 
               #event_data("plotly_click")$key)) %>% 
-              arrange(desc(Score)) %>% 
+              arrange(desc(relevance)) %>% 
               datatable(rownames = FALSE, escape = FALSE,
                   options = list(searching = FALSE, pageLength = 25,lengthMenu = c(50, 100, 500, 1000), scrollX = T,
                                  width="100%",autoWidth = TRUE)) %>% 
               DT::formatStyle(columns = 1:6, color="white", fontSize = '75%')
-    })
+            })
+
     
     institutions <- data %>% filter(Authors==input$links) %>% 
       mutate(Affiliations=gsub(";", " | ", Affiliations)) %>%
@@ -1035,16 +1255,46 @@ server <- function(session, input, output) {
     
     output$authorName <- renderUI(HTML(paste0("<H4 id='authorName'>Papers with the participation of <b>",
                                               isolate(input$links), "</b></H4><br>", institutions, "<br><br>")))
-    },
-    error = function(err){
-      showNotification(paste0(err), type = 'err')
-    },
-    warning = function(warn){
-      showNotification(paste0(warn), type = 'warning')
-    }))
     })
     
   })
+  
+  ####Downloads####
+  output$downloadData1 <- downloadHandler(
+      filename = function() {
+        paste('topIndexAuthors', '.csv', sep='')
+      },
+      content = function(con) {
+        write.csv(data, con)
+      }
+    )
+  
+  output$downloadData2 <- downloadHandler(
+    filename = function() {
+      paste('topIndexInstitutions', '.csv', sep='')
+    },
+    content = function(con) {
+      write.csv(data, con)
+    }
+  )
+  
+  output$downloadData3 <- downloadHandler(
+    filename = function() {
+      paste('topIndexPapers', '.csv', sep='')
+    },
+    content = function(con) {
+      write.csv(data, con)
+    }
+  )
+  
+  output$downloadData4 <- downloadHandler(
+    filename = function() {
+      paste('authorsPapers', '.csv', sep='')
+    },
+    content = function(con) {
+      write.csv(data, con)
+    }
+  )
   
   
 }
