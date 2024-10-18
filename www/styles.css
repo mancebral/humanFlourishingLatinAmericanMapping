@@ -24,25 +24,38 @@
 
 #frontPage {
   margin: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: inline-block;
+  position: relative;
+  height: 90vh;
+  width: 100%;
+  background-color: transparent;
 }
 
-#no {
-  padding: 70px 0;
-  vertical-align: middle;
-  text-align: center;
-}
-
-#about {
+.frontElements{
   margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: inline-block;
+  text-align:center;
+}
+
+#about {
+  margin: 0;
+  position: relative;
+  height: 90vh;
+  width: 100%;
+  background-color: transparent;
+}
+
+.aboutElements{
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  text-align:center;
 }
 
 .myTitle{
@@ -79,7 +92,17 @@
   text-align: center;
 }
 
+#contact {
+  font-weight: bold;
+  text-align: center;
+}
+
 #aboutText {
+  font-size: 16px;
+  text-align: center;
+}
+
+#aboutText2 {
   font-size: 16px;
   text-align: center;
 }
@@ -117,40 +140,6 @@ div.datatables {
   margin-bottom: 10px;
   background-color: #000000;
 }
-
-/*.navbar-default {
-  color: white;
-  font-weight: bold;
-  background-color: #8192A0;
-  border-color: transparent;
-}
-
-.navbar-default .navbar-nav>.active>a {
-    background-color: #8192A0;
-}
-
-.navbar-default>li.active>a {
-  font-weight: bold;
-  color: #C44A17;
-  background-color: transparent;
-  cursor: default;
-  border: 0px;
-  border-bottom-color: transparent;
-}
-
-.navbar-default>li:hover>a {
-  color: #C44A17;
-  font-weight: bold;
-  background-color: transparent;
-  border: 0px;
-}
-
-.navbar-default>li.active>a:focus {
-  color: #C44A17;
-  font-weight: bold;
-  background-color: transparent;
-  border: 0px;
-}*/
   
 .irs--shiny .irs-bar {
   top: 25px;
@@ -180,23 +169,14 @@ body {
   }
 }
 
-#logo1 {
+#logos {
   width: 200px;
   height: auto;
   display: inline-block;
-  position: absolute;
-  left: 0%;
-  margin-left: 100px
+  margin-left: auto;
+  margin-right: auto;
 }
 
-#logo2 {
-  width: 200px;
-  height: auto;
-  display: inline-block;
-  position: absolute;
-  left: 50%;
-  margin-left: 100px
-}
 
 /* width */
 ::-webkit-scrollbar {
@@ -210,7 +190,7 @@ body {
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #ffffff; 
+  background: #B0BAC3; 
 }
 
 /* Handle on hover */
@@ -220,4 +200,8 @@ body {
 
 .infoTable {
   font-size: 10px;
+}
+
+.shiny-download-link-shiny-bound-output {
+  font-size: 1px;
 }
