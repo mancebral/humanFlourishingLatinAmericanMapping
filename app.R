@@ -45,10 +45,10 @@ cbow_modelCH = read.word2vec("cbow_modelCH.bin")
 cbow_modelCO = read.word2vec("cbow_modelCO.bin")
 
 #crear paleta de color
-my_palette <- grDevices::colorRampPalette(rev(c("#162F43","#3B4952","#55636D","#6D7E8B", 
-                                                "#8192A0")))(11)
-my_paletteL <- grDevices::colorRampPalette(rev(c("#162F43","#3B4952","#55636D","#6D7E8B", 
-                                                 "#8192A0")))(5)
+my_palette <- grDevices::colorRampPalette(rev(c("#1455A3","#78A167","#D55227","#F4AA40", 
+                                                "lightgrey")))(11)
+my_paletteL <- grDevices::colorRampPalette(rev(c("#1455A3","#78A167","#D55227","#F4AA40", 
+                                                 "lightgrey")))(5)
 
 ####USER INTERFACE####
 ui <- tagList(
@@ -59,12 +59,13 @@ ui <- tagList(
   
   useShinyjs(),
   
-  setBackgroundColor(color = "#8192A0"),
+  #setBackgroundColor(color = "#8192A0"),
+  setBackgroundImage(src = "background.png"),
   
   # Footer
   tags$footer(
     style = "position: fixed; bottom: 0; z-index: 9999;
-    width: 100%; background-color: #8192A0; color: white;
+    width: 100%; background-color: white; color: black;
     padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;
     text-align: center; font-size: 10px;",
     HTML("This site has been conceived by the Human Flourishing Team of Tecnológico de Monterrey and 
@@ -80,13 +81,13 @@ ui <- tagList(
             tabPanel("Intro"),
             
             tabPanel("Home", 
-                     HTML('<div id="frontPage"><div class="frontElements"><h1 class="myTitle">Human Flourishing<br>in Latin America</h1><br>
+                     HTML('<div id="frontPage"><div class="frontElements"><img id="img-titulo" src="title.png"><br><br>
                                              <p id="subtitle">Landscaping Regional Research and Leadership Capacities for the 
                                              Study of Human Flourishing in Mexico, Colombia, Chile, and Brazil.
                                              This portal offers several tools to gather information on academic research fed by a database 
                                              that includes scientific production in Scopus and OpenAlex between 2000 and 2023.</p><br>
                                              <a href="https://tec.mx/es/florecimiento-humano/entorno-para-florecer/mapeo-de-florecimiento-humano-en-latinoamerica" target="_blank"> 
-                                             <img id="logos" src="logoTec2.png"></a>  <a href="https://www.templetonworldcharity.org/" target="_blank"><img id="logos" src="logoTempleton.png"></a>
+                                             <img id="logos" src="logoTec.png"></a>  <a href="https://www.templetonworldcharity.org/" target="_blank"><img id="logos" src="logoTempleton.png"></a>
                           </div></div>')
             ),
             
@@ -108,7 +109,7 @@ ui <- tagList(
                             radioGroupButtons(
                               inputId = "criterias",
                               label = "",
-                              status = "primary",
+                              #status = "custom-class",
                               choices = c("Productivity",
                                           "Influence",
                                           "Relevance",
@@ -124,7 +125,7 @@ ui <- tagList(
                               style = "resize:vertical;",
                               card_body(
                                 min_height = 500,
-                                tableOutput("criteriaPlot")%>% withSpinner(color="white")
+                                tableOutput("criteriaPlot")%>% withSpinner(color="#F4AA40")
                               )
                             )
                      )
@@ -138,16 +139,16 @@ ui <- tagList(
                                                 choices = c("Region", "Mexico",
                                                             "Colombia", "Chile", "Brazil"))),
                      column(6, 
-                            plotlyOutput("typesPlot", height = "280px")%>% withSpinner(color="white")
+                            plotlyOutput("typesPlot", height = "280px")%>% withSpinner(color="#F4AA40")
                      ),
                      column(6,
-                            plotlyOutput("papersYear", height = "280px")%>% withSpinner(color="white"),
+                            plotlyOutput("papersYear", height = "280px")%>% withSpinner(color="#F4AA40"),
                             HTML("<br><br>")
                      ),
                      column(12,
                             HTML("<p text-align='center';>By clicking on any country of the pie charts you can access to the data of that specific country</p><br><br>")),
                      column(4,
-                            plotlyOutput("dataInfo1")%>% withSpinner(color="white"),
+                            plotlyOutput("dataInfo1")%>% withSpinner(color="#F4AA40"),
                             HTML("<br>"),
                             column(12,
                                    column(11,
@@ -165,11 +166,11 @@ ui <- tagList(
                               style = "resize:vertical;",
                               card_body(
                                 min_height = 300,
-                                tableOutput("dataInfo1.2")%>% withSpinner(color="white")
+                                tableOutput("dataInfo1.2")%>% withSpinner(color="#F4AA40")
                               )) %>% tagAppendAttributes(class="infoTable")
                      )),
                      column(4,
-                            plotlyOutput("dataInfo2")%>% withSpinner(color="white"),
+                            plotlyOutput("dataInfo2")%>% withSpinner(color="#F4AA40"),
                             HTML("<br>"),
                             column(12,
                                    column(11,
@@ -186,11 +187,11 @@ ui <- tagList(
                               style = "resize:vertical;",
                               card_body(
                                 min_height = 300,
-                                tableOutput("dataInfo2.2")%>% withSpinner(color="white")
+                                tableOutput("dataInfo2.2")%>% withSpinner(color="#F4AA40")
                               )) %>% tagAppendAttributes(class="infoTable")
                      )),
                      column(4,
-                            plotlyOutput("dataInfo3")%>% withSpinner(color="white"),
+                            plotlyOutput("dataInfo3")%>% withSpinner(color="#F4AA40"),
                             HTML("<br>"),
                             column(12,
                             column(11,
@@ -207,7 +208,7 @@ ui <- tagList(
                               style = "resize:vertical;",
                               card_body(
                                 min_height = 300,
-                                tableOutput("dataInfo3.2")%>% withSpinner(color="white")
+                                tableOutput("dataInfo3.2")%>% withSpinner(color="#F4AA40")
                               ))%>% tagAppendAttributes(class="infoTable")
                      ))
             ),
@@ -370,19 +371,21 @@ ui <- tagList(
                      card_body(
                        min_height = "80vh",
             column(12,
-                   h3(" Project Leader", style="color: #8192A0; background:white;"),
+                   h3(" Project Leader", style="color: #F4AA40; background:transparent;"),
                    column(3,
                    img(src="https://tec.mx/sites/default/files/repositorio/sentido-humano/florecimiento-humano/enrique-tamez-entorno-florecer-florecimiento-humano-tec-monterey.jpg",
                        align="center",
+                       class = "redonda",
                        width=100)),
                    column(9, 
                           HTML("<h5>Dr. Enrique Tamés</h5>
                                Tecnologico de Monterrey (Mexico)"))) %>% tagAppendAttributes(class="my_col_class"),
             column(12,
-                   h3(" Core Researchers", style="color: #8192A0; background:white;"),
+                   h3(" Core Researchers", style="color: #F4AA40; background:transparent;"),
                    column(3,
                    img(src="https://tec.mx/sites/default/files/repositorio/sentido-humano/florecimiento-humano/alberto-baqueiro-entorno-florecer-florecimiento-humano-tec-monterey.jpg",
                        align="center",
+                       class = "redonda",
                        width=100)),
                    column(9,
                           HTML("<h5>Dr. Alberto Hernández-Baqueiro</h5>
@@ -392,15 +395,17 @@ ui <- tagList(
                    column(3,
                    img(src="https://research.tec.mx/vivo-tec/file/n445/thumbnail_Manuel+Cebral+Loureda.jpg",
                        align="center",
+                       class = "redonda",
                        width=100)),
                    column(9,
                           HTML("<h5>Dr. Manuel Cebral-Loureda</h5>
                                Tecnologico de Monterrey (Mexico)"))),
-            h3(" Associate Researchers", style="color: #8192A0; background:white;"),
+            h3(" Associate Researchers", style="color: #F4AA40; background:transparent;"),
             column(12,
                    column(3,
                           img(src="https://amazoninvestor.org/wp-content/uploads/2023/05/iara.jpg",
                               align="center",
+                              class = "redonda",
                               width=100)),
                    column(9,
                           HTML("<h5>Iara Vicente, MPA ESP</h5>
@@ -410,6 +415,7 @@ ui <- tagList(
                    column(3,
                    img(src="https://cdn.theconversation.com/avatars/278480/width238/tim_lomas.jpg",
                        align="center",
+                       class = "redonda",
                        width=100)),
                    column(9,
                           HTML("<h5>Dr. Tim Lomas</h5>
@@ -419,6 +425,7 @@ ui <- tagList(
                    column(3,
                           img(src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4hys_N90pC6BE-mAIy-31VvhnlvgCDc6_0Q&s",
                               align="center",
+                              class = "redonda",
                               width=100)),
                    column(9,
                           HTML("<h5>Dr. Monica Zenil</h5>
@@ -428,6 +435,7 @@ ui <- tagList(
                    column(3,
                    img(src="https://admonuniandes.b-cdn.net/wp-content/uploads/2021/11/eduardo-wills.jpg",
                        align="center",
+                       class = "redonda",
                        width=100)),
                    column(9,
                           HTML("<h5>Dr. Eduardo Wills</h5>
@@ -437,15 +445,17 @@ ui <- tagList(
                    column(3,
                           img(src="https://0.academia-photos.com/838587/295013/31455741/s200_giovanni.vecchio.jpg",
                               align="center",
+                              class = "redonda",
                               width=100)),
                    column(9,
                           HTML("<h5>Dr. Giovanni Vecchio</h5>
                                Pontificia Universidad Catolica de Chile (Chile)"))),
             column(12,
-                   h3(" Management", style="color: #8192A0; background:white;"),
+                   h3(" Management", style="color: #F4AA40; background:transparent;"),
                    column(3,
                           img(src="https://tec.mx/sites/default/files/inline-images/aida-martinez-entorno-florecer-florecimiento-humano-tec-monterey.jpg",
                               align="center",
+                              class = "redonda",
                               width=100)),
                    column(9,
                           HTML("<h5>Msc. Aída Martínez</h5>
@@ -657,7 +667,8 @@ server <- function(session, input, output) {
         xlab(NULL)+
         ggtitle("Documents by year")+
         theme(
-          panel.background = element_rect(fill='#B0BAC3'),
+          panel.grid = element_line(colour = "black"),
+          panel.background = element_rect(fill='transparent'),
           plot.background = element_rect(fill="transparent", color=NA),
           legend.background = element_rect(fill = "transparent"),
           plot.margin = unit(c(0, 0, 0, 0), "points"))
@@ -689,7 +700,8 @@ server <- function(session, input, output) {
           xlab(NULL)+
           ggtitle("Documents by year")+
           theme(
-            panel.background = element_rect(fill='#B0BAC3'),
+            panel.grid = element_line(colour = "black"),
+            panel.background = element_rect(fill='transparent'),
             plot.background = element_rect(fill="transparent", color=NA),
             legend.background = element_rect(fill = "transparent"),
             plot.margin = unit(c(0, 0, 0, 0), "points"))
@@ -903,8 +915,8 @@ server <- function(session, input, output) {
                                               11)]) %>% 
         add_row(Productivity=194486, color="black")
       
-      myColorsL <- tibble(Productivity=c("0", "up to 1000", "up to 10000", "up to 40000"), 
-                         color=my_paletteL[cut(c(0, 1000, 10000, 40000),
+      myColorsL <- tibble(Productivity=c("0", "up to 25000", "up to 40000", "up to 70000"), 
+                         color=my_paletteL[cut(c(0, 25000, 40000, 70000),
                                               4)]) %>% 
         add_row(Productivity="up to 200000", color="black")
       
@@ -960,8 +972,8 @@ server <- function(session, input, output) {
             select(Countries, Productivity, text) %>% 
             distinct() %>% 
             ggplot(aes(Productivity, Countries, text=text))+
-            geom_col(fill="#C44A17")+
-            geom_col(aes(194485, Countries), color="white", fill= "transparent", show.legend = FALSE)+
+            geom_col(fill="#F4AA40")+
+            geom_col(aes(194485, Countries), color="black", fill= "transparent", show.legend = FALSE)+
             ggtitle("Productivity (logarithmic scale)", 
                     subtitle = "The relevance score is the mean of the 5 most frequent relevant words")+
             ylab(NULL)+
@@ -975,7 +987,7 @@ server <- function(session, input, output) {
               plot.background = element_rect(fill='transparent', color=NA),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
-              title = element_text(colour = "#ffffff", size=10)
+              title = element_text(colour = "#000000", size=10)
             )
           
           ggplotly(relevancePlot, tooltip = c("text")) %>% 
@@ -992,8 +1004,8 @@ server <- function(session, input, output) {
             select(Countries, totalScore, percen, text) %>% 
             distinct() %>% 
             ggplot(aes(percen, Countries, text=text))+
-            geom_col(fill="#C44A17")+
-            geom_col(aes(99.9999, Countries), color="white", fill= "transparent", show.legend = FALSE)+
+            geom_col(fill="#F4AA40")+
+            geom_col(aes(99.9999, Countries), color="black", fill= "transparent", show.legend = FALSE)+
             ggtitle("Relevance Score (%)", 
                     subtitle = "The relevance score is the mean of the 5 most frequent relevant words")+
             ylab(NULL)+
@@ -1006,7 +1018,7 @@ server <- function(session, input, output) {
               plot.background = element_rect(fill='transparent', color=NA),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
-              title = element_text(colour = "#ffffff", size=10)
+              title = element_text(colour = "#000000", size=10)
             )
           
           ggplotly(relevancePlot, tooltip = c("text")) %>% 
@@ -1028,8 +1040,8 @@ server <- function(session, input, output) {
                                 if_else(percen<10, paste0("  ", word), word))) %>% 
             ggplot(aes(percen, reorder(as.factor(word), percen), text=text,
                        group=percen))+
-            geom_col(fill="#C44A17")+
-            geom_col(aes(100, word), color="white", fill= "transparent", show.legend = FALSE)+
+            geom_col(fill="#F4AA40")+
+            geom_col(aes(100, word), color="black", fill= "transparent", show.legend = FALSE)+
             ggtitle("Most Frequent Relevant Words")+
             ylab(NULL)+
             xlab(NULL)+
@@ -1043,9 +1055,9 @@ server <- function(session, input, output) {
               panel.grid.minor = element_blank(),
               legend.background = element_rect(fill='transparent'),
               legend.box.background = element_rect(fill='transparent'),
-              title = element_text(colour = "#ffffff", size=10)
+              title = element_text(colour = "#000000", size=10)
             )+
-            geom_text(aes(label = word, group=score), colour="white", 
+            geom_text(aes(label = word, group=score), colour="black", 
                       vjust="inward",hjust="inward")
           
           ggplotly(relevantWords, tooltip = c("text")) %>% 
@@ -1072,7 +1084,7 @@ server <- function(session, input, output) {
                         searching = FALSE,
                         buttons = c('copy', 'csv', 'excel')
                       ),class = "display") %>% 
-            DT::formatStyle(columns = 1:3, color="white", fontSize = '75%')
+            DT::formatStyle(columns = 1:3, color="black", fontSize = '75%')
         })
       })
       
@@ -1141,7 +1153,7 @@ server <- function(session, input, output) {
             select(Countries, Productivity, text) %>% 
             distinct() %>% 
             ggplot(aes(Productivity, Countries, text=text))+
-            geom_col(fill="#C44A17")+
+            geom_col(fill="#F4AA40")+
             geom_col(aes(194485, Countries), color="white", fill= "transparent", show.legend = FALSE)+
             ggtitle("Productivity (logarithmic scale)", 
                     subtitle = "The relevance score is the mean of the 5 most frequent relevant words")+
@@ -1172,7 +1184,7 @@ server <- function(session, input, output) {
             select(Countries, totalScore, percen, text) %>% 
             distinct() %>% 
             ggplot(aes(percen, Countries, text=text))+
-            geom_col(fill="#C44A17")+
+            geom_col(fill="#F4AA40")+
             geom_col(aes(99.999, Countries), color="white", fill= "transparent", show.legend = FALSE)+
             ggtitle("Relevance Score (%)",
                     subtitle = "The relevance score is the mean of the 5 most frequent relevant words")+
@@ -1208,7 +1220,7 @@ server <- function(session, input, output) {
                                 if_else(percen<10, paste0("  ", word), word))) %>% 
             ggplot(aes(percen, reorder(as.factor(word), percen), text=text,
                        group=percen))+
-            geom_col(fill="#C44A17")+
+            geom_col(fill="#F4AA40")+
             geom_col(aes(100, word), color="white", fill= "transparent", show.legend = FALSE)+
             ggtitle("Most Frequent Relevant Words")+
             ylab(NULL)+
@@ -1284,15 +1296,16 @@ server <- function(session, input, output) {
       annotate("text", 
                x = c(0.1, 0.9, 0.1, 0.9), 
                y = c(0.4, 0.4, 0.6, 0.6), 
-               colour = "white", size = 3,
+               colour = "black", size = 3,
                label = c("<i>low productivity\nlow relevance</i>", 
                          "<i>low productivity\nhigh relevance</i>", 
                          "<i>high productivity\nlow relevance</i>", 
                          "<i>high productivity\nhigh relevance</i>"),
                parse=TRUE)+
       theme(
+        panel.grid = element_line(colour = "black"),
         panel.background = element_rect(fill='transparent'),
-        plot.background = element_rect(fill='#B0BAC3', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA),
         legend.background = element_rect(fill = "transparent"))
     
     ggplotly(plotScores, source = "authorsTab", tooltip = "text")%>% 
@@ -1333,10 +1346,11 @@ server <- function(session, input, output) {
                          "<i>high influence\nlow relevance</i>", 
                          "<i>high influence\nhigh relevance</i>"),
                parse=TRUE,
-               colour = "white", size = 3)+
+               colour = "black", size = 3)+
       theme(
+        panel.grid = element_line(colour = "black"),
         panel.background = element_rect(fill='transparent'),
-        plot.background = element_rect(fill='#B0BAC3', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA),
         legend.background = element_rect(fill = "transparent"))
     
     ggplotly(plotScores, source = "authorsTab",  tooltip = "text")%>% 
@@ -1606,7 +1620,7 @@ server <- function(session, input, output) {
       dfAll %>% 
         mutate(text=paste0(Country, ": ", round(total, 4))) %>% 
         ggplot(aes(total, reorder(as.factor(Country), total), text=text))+
-        geom_col(fill="#C44A17")+
+        geom_col(fill="#F4AA40")+
         geom_text(aes(label = Country), colour="white", 
                   vjust="inward", hjust="inward")+
         theme_bw()+
