@@ -11,7 +11,7 @@
 }
 
 .leaflet-container { 
-  background: #8192A0; 
+  background: transparent; 
 }
                    
 .nav-tabs {
@@ -20,6 +20,15 @@
 
 .continents{
   background-color: white;
+}
+
+@font-face {
+    font-family: 'Latcha';
+    src: url('www/fonts/Latcha-Regular.woff2') format('woff2'),
+         url('www/fonts/Latcha-Regular.woff') format('woff'),
+         url('fonts/Latcha-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }
 
 #frontPage {
@@ -67,6 +76,7 @@
 #subtitle {
   font-size: 16px;
   text-align: center;
+  font-family: "Arial";
 }
 
 #criteriaText {
@@ -76,6 +86,8 @@
 #criteriaTitle{
   font-weight: bold;
   font-size: 60px;
+  font-family: 'Latcha';
+  color: #F4AA40;
 }
 
 #criteriaSubtitle {
@@ -90,6 +102,8 @@
   font-weight: bold;
   font-size: 60px;
   text-align: center;
+  font-family: 'Latcha';
+  color: #F4AA40;
 }
 
 #contact {
@@ -112,7 +126,7 @@
 }
 
 body {
-  color: #fff;
+  color: #000;
 }
 
 a:link {
@@ -144,16 +158,16 @@ div.datatables {
 .irs--shiny .irs-bar {
   top: 25px;
   height: 8px;
-  border-top: 1px solid #C44A17;
-  border-bottom: 1px solid #C44A17;
-  background: #C44A17;
+  border-top: 1px solid #F4AA40;
+  border-bottom: 1px solid #F4AA40;
+  background: #F4AA40;
 }
 
 .irs--shiny .irs-single {
   color: #fff;
   text-shadow: none;
   padding: 1px 3px;
-  background-color: #C44A17;
+  background-color: #F4AA40;
   border-radius: 3px;
   font-size: 11px;
   line-height: 1.333;
@@ -177,6 +191,10 @@ body {
   margin-right: auto;
 }
 
+.aboutHeaders {
+  color: #F4AA40; 
+  background:transparent;
+}
 
 /* width */
 ::-webkit-scrollbar {
@@ -190,7 +208,7 @@ body {
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #B0BAC3; 
+  background: #F4AA40; 
 }
 
 /* Handle on hover */
@@ -204,4 +222,34 @@ body {
 
 .shiny-download-link-shiny-bound-output {
   font-size: 1px;
+}
+
+img.redonda {
+  border-radius: 50%;
+  border: 2px solid #F4AA40;
+}
+
+ #criterias .btn {
+        background-color: #F4AA4080; /* Color de fondo predeterminado */
+        color: black;              /* Color del texto */
+        border: none;              /* Eliminar el borde */
+      }
+
+  #criterias .btn:hover {
+        background-color: #F4AA40; /* Color cuando pasa el mouse por encima */
+        color: black;
+      }
+
+  #criterias .btn.active {
+        background-color: #F4AA40; /* Color cuando el botón está seleccionado */
+        color: white;
+      }
+
+  #criterias .btn:focus {
+        box-shadow: none;          /* Eliminar el contorno cuando está enfocado */
+      }
+      
+#img-titulo {
+  max-width: 100%; /* Limitar el ancho al 100% del contenedor */
+  height: auto;    /* Mantener la proporción de la imagen */
 }
